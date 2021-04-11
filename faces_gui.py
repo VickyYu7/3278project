@@ -1,3 +1,9 @@
+import urllib
+import numpy as np
+import mysql.connector
+import cv2
+import pyttsx3
+import pickle
 from datetime import datetime
 import sys
 import PySimpleGUI as sg
@@ -112,7 +118,7 @@ while True:
 
 
                 def read_course(stu_id,stu_date,stu_time):
-                    select = "SELECT * FROM (SELECT * FROM Has WHERE student_id=%s) H, (SELECT * FROM Course WHERE class_date=%s AND SUBTIME(class_time,%s) BETWEEN '00:00:00' AND '00:00;00') C, Teaches S, Teacher T WHERE C.course_code=H.course_code AND S.course_code=H.course_code AND S.work_id=T.work_id" 
+                    select = "SELECT * FROM (SELECT * FROM Has WHERE student_id=%s) H, (SELECT * FROM Course WHERE class_date=%s AND SUBTIME(class_time,%s) BETWEEN '00:00:00' AND '01:00:00') C, Teaches S, Teacher T WHERE C.course_code=H.course_code AND S.course_code=H.course_code AND S.work_id=T.work_id" 
                     val = (stu_id,stu_date,stu_time)
                     cursor.execute(select,val)
                     result = cursor.fetchall()
@@ -124,10 +130,10 @@ while True:
                     result = cursor.fetchall()
                     return result
 
-                date='2021-04-10'
-                time='14:00:00'
                 result=[[1]]
-
+                date='2021-04-10'
+                time='17:00:00'
+                
                 if have_class(result[0][0],date,time) == False:
                     all_courses = read_all_courses(result[0][0])
                     print(all_courses)
