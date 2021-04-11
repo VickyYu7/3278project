@@ -1,9 +1,3 @@
-import urllib
-import numpy as np
-import mysql.connector
-import cv2
-import pyttsx3
-import pickle
 from datetime import datetime
 import sys
 import PySimpleGUI as sg
@@ -106,36 +100,41 @@ while True:
 
                 """
 
-                def have_class(stu_id,stu_date,stu_time)
-                    select = "SELECT C.course_id, C.sub_id FROM Course C, Has H WHERE C.course_id=H.course_id AND C.sub_id=H.sub_id AND H.student_id=%s AND course_date=%s AND SUBTIME(STR_TO_DATE(course_time),%s)<1 AND SUBTIME(STR_TO_DATE(course_time),%s)>0 )"
+                def have_class(stu_id,stu_date,stu_time):
+                    select = "SELECT * FROM Course C, Has H WHERE C.course_code=H.course_code AND H.student_id=%s AND class_date=%s AND SUBTIME(C.class_time,%s) BETWEEN '00:00:00' AND '01:00:00'"
                     val = (stu_id,stu_date,stu_time)
                     cursor.execute(select,val)
                     result = cursor.fetchall()
-                    if len(result)=0:
+                    if len(result)==0:
                         return False
                     else:
                         return True
 
 
-                def read_course(student_id,stu_date,stu_time,list_of_courses)
-                    select = "SELECT * FROM Course C, Has H WHERE C.course_id=H.course_id AND C.sub_id=H.sub_id AND H.student_id=%s AND course_date=%s AND SUBTIME(STR_TO_DATE(course_time),%s)<1 AND SUBTIME(STR_TO_DATE(course_time),%s)>0 )" 
+                def read_course(stu_id,stu_date,stu_time):
+                    select = "SELECT * FROM (SELECT * FROM Has WHERE student_id=%s) H, (SELECT * FROM Course WHERE class_date=%s AND SUBTIME(class_time,%s) BETWEEN '00:00:00' AND '00:00;00') C, Teaches S, Teacher T WHERE C.course_code=H.course_code AND S.course_code=H.course_code AND S.work_id=T.work_id" 
                     val = (stu_id,stu_date,stu_time)
                     cursor.execute(select,val)
                     result = cursor.fetchall()
                     return result
-
-                def read_all_courses(student_id)
-                    select = "SELECT H.course_id, H.sub_id, C.course_date, C.course_time FROM Has H, Course C WHERE H.student_id=%s AND C.course_id=H.course_id AND H.sub_id=C.sub_id"
-                    val = (stu_id,stu_date,stu_time)
-                    cursor.execute(select,val)
+ 
+                def read_all_courses(stu_id):
+                    select = "SELECT H.course_code, class_date, class_time FROM Has H, Course C WHERE H.student_id=%s AND C.course_code=H.course_code"%stu_id
+                    cursor.execute(select)
                     result = cursor.fetchall()
                     return result
 
-                if have_class(result[0][0],date,current_time) = False:
-                    course_info = read_all_course(result[0][0],date,current_time)
+                date='2021-04-10'
+                time='14:00:00'
+                result=[[1]]
+
+                if have_class(result[0][0],date,time) == False:
+                    all_courses = read_all_courses(result[0][0])
+                    print(all_courses)
                 
                 else:
-                    all_courses = read_course(result[0][0],date,current_time)
+                    course_info = read_course(result[0][0],date,time)
+                    print(course_info)
 
                 update =  "UPDATE Student SET login_date=%s WHERE name=%s"
                 val = (date, current_name)
@@ -189,3 +188,4 @@ while True:
         
 win.Close()
 cap.release()
+
